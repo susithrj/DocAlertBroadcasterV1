@@ -1,0 +1,58 @@
+<html>
+  <head>
+    <title>Web Socket Client - DOC Alert</title>
+  </head>
+  <body>
+          <form>
+		     <h4>Connection Status:<h4><br>
+             <textarea id="messageStatus" rows="2" cols="100" disabled></textarea><br><br>
+			 <h4>Request:<h4><br>
+			 <textarea id="messageRequest" rows="8" cols="150"></textarea><br><br>
+			 <input onclick="sendMessage();" value="Send Message" type="button"><br><br>
+			 <h4>Response:<h4><br>
+			 <textarea id="messageResponse" rows="10" cols="150" disabled></textarea>
+
+            <script type="text/javascript">
+
+			   var serverIp = '127.0.0.1:8080/DocAlert/BroadcastServ';
+
+			  var webSocket = new WebSocket('ws://' + serverIp);
+              var messageStatus = document.getElementById("messageStatus");
+			  var messageRequest = document.getElementById("messageRequest");
+			  var messageResponse = document.getElementById("messageResponse");
+
+
+			  var dataString = '{"HED":{"msgTyp":2,"channel":12,"commVer":"DOCAlertClient_1.0","loginId":"328","sesnId":"328_04414fed-9096-441d-bc56-1cf7703f1ea8","clientIp":"10.212.134.2","tenantCode":"DEFAULT_TENANT","unqReqId":"0_1629454007753","routeId":"51175"},"DAT":{}}'
+			  messageRequest.value = dataString;
+
+              webSocket.onopen = function(message) {processOpen(message)};
+              webSocket.onclose = function(message) {processClose(message)};
+              webSocket.onerror = function(message) {processError(message)};
+              webSocket.onmessage =  function(message) {processMessage(message)};
+
+              function sendMessage(){
+			  messageResponse.value = '';
+                var result = webSocket.send(messageRequest.value);
+              }
+
+              function processOpen(message){
+                messageStatus.value = 'Connected to ' + serverIp;
+              }
+
+              function processMessage(message){
+                messageResponse.value = 'DocAlert Response: ' + message.data;
+              }
+
+              function processClose(message){
+                //webSocket.send("Client Disconnected....");
+                messageStatus.value = 'Disconnected';
+              }
+              function processError(message){
+                messageStatus.value = message;
+              }
+
+
+            </script>
+          </form>
+  </body>
+</html>
